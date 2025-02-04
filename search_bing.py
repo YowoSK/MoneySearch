@@ -25,7 +25,12 @@ def generate_random_string(length):
     randomadded = 'abcdefghijklmnopqrstuvwxyz123456789'
     return ''.join(random.choice(randomadded) for i in range(length))
 
+# Configuration
 num_searches = 30
+search_delay = 1  # Delay between searches in seconds
+type_delay_min = 0.05  # Minimum delay between typing characters
+type_delay_max = 0.1  # Maximum delay between typing characters
+tab_close_delay = 0.5  # Delay before closing a tab
 
 try:
     if os.name == 'nt':  # Windows
@@ -59,23 +64,23 @@ try:
             print(f"An error occurred while opening a new tab: {e}")
             continue
         
-        time.sleep(1)
+        time.sleep(search_delay)
         
         try:
             for char in search_query:
                 pyautogui.typewrite(char)
-                time.sleep(random.uniform(0.05, 0.1))
+                time.sleep(random.uniform(type_delay_min, type_delay_max))
             pyautogui.press('enter')
         except Exception as e:
             print(f"An error occurred while typing the search query: {e}")
             continue
         
-        time.sleep(0.5)
+        time.sleep(tab_close_delay)
         
         if open_tabs > 1:
             try:
                 pyautogui.hotkey('ctrl', '1')
-                time.sleep(0.5)
+                time.sleep(tab_close_delay)
                 pyautogui.hotkey('ctrl', 'w')
                 open_tabs -= 1
             except Exception as e:
