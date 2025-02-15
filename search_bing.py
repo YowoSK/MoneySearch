@@ -26,11 +26,11 @@ def generate_random_string(length):
     return ''.join(random.choice(randomadded) for i in range(length))
 
 # Configuration
-num_searches = 60
+num_searches = 90
 search_delay = 1  # Delay between searches in seconds
 type_delay_min = 0.05  # Minimum delay between typing characters
 type_delay_max = 0.1  # Maximum delay between typing characters
-tab_close_delay = 0.5  # Delay before closing a tab
+tab_close_delay = 1  # Delay before closing a tab
 
 try:
     if os.name == 'nt':  # Windows
