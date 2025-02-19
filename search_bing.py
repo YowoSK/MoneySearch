@@ -25,12 +25,16 @@ def generate_random_string(length):
     randomadded = 'abcdefghijklmnopqrstuvwxyz123456789'
     return ''.join(random.choice(randomadded) for i in range(length))
 
+def get_user_input(prompt, default):
+    user_input = input(f"{prompt} (default: {default}): ")
+    return type(default)(user_input) if user_input else default
+
 # Configuration
-num_searches = 90
-search_delay = 1  # Delay between searches in seconds
-type_delay_min = 0.05  # Minimum delay between typing characters
-type_delay_max = 0.1  # Maximum delay between typing characters
-tab_close_delay = 1  # Delay before closing a tab
+num_searches = get_user_input("Enter the number of searches", 90)
+search_delay = get_user_input("Enter the delay between searches in seconds", 1)
+type_delay_min = get_user_input("Enter the minimum delay between typing characters", 0.05)
+type_delay_max = get_user_input("Enter the maximum delay between typing characters", 0.1)
+tab_close_delay = get_user_input("Enter the delay before closing a tab", 1)
 
 try:
     if os.name == 'nt':  # Windows
