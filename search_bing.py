@@ -1,3 +1,17 @@
+"""
+Author: Filip Šulík
+Date: February 2025
+Description: This script performs automated searches on Bing using random words and strings.
+Version: 1.0.3
+License: MIT
+Dependencies: 
+    - pyautogui
+    - nltk
+Usage: 
+    1. Ensure all dependencies are installed.
+    2. Run the script using 'python search_bing.py' or start_search.sh or .bat
+"""
+
 import webbrowser
 import random
 import time
