@@ -2,7 +2,7 @@
 Author: Filip Šulík
 Date: February 2025
 Description: This script performs automated searches on Bing using random words and strings.
-Version: 1.0.3
+Version: 1.1.0
 License: MIT
 Dependencies: 
     - pyautogui
