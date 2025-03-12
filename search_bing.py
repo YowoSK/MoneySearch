@@ -17,6 +17,8 @@ import random
 import time
 import os
 import logging
+import tkinter as tk
+from tkinter import messagebox
 
 try:
     import pyautogui
@@ -46,6 +48,22 @@ def generate_random_string(length):
 def get_user_input(prompt, default):
     user_input = input(f"{prompt} (default: {default}): ")
     return type(default)(user_input) if user_input else default
+
+def get_search_speed():
+    print("Choose search speed preset:")
+    print("slow - Slow")
+    print("medium - Medium")
+    print("fast - Fast")
+    speed_choice = input("Enter your choice: ").lower()
+    if speed_choice == 'slow':
+        return 2, 0.1, 0.2, 2  # Slow: search_delay, type_delay_min, type_delay_max, tab_close_delay
+    elif speed_choice == 'medium':
+        return 1, 0.05, 0.1, 1  # Medium
+    elif speed_choice == 'fast':
+        return 0.5, 0.01, 0.05, 0.5  # Fast
+    else:
+        print("Invalid choice. Defaulting to Medium speed.")
+        return 1, 0.05, 0.1, 1
 
 def perform_searches(num_searches, search_delay, type_delay_min, type_delay_max, tab_close_delay):
     try:
@@ -110,17 +128,57 @@ def perform_searches(num_searches, search_delay, type_delay_min, type_delay_max,
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}")
 
-# Configuration
-num_searches = get_user_input("Enter the number of searches", 90)
-search_delay = get_user_input("Enter the delay between searches in seconds", 1)
-type_delay_min = get_user_input("Enter the minimum delay between typing characters", 0.05)
-type_delay_max = get_user_input("Enter the maximum delay between typing characters", 0.1)
-tab_close_delay = get_user_input("Enter the delay before closing a tab", 1)
+def start_search():
+    try:
+        num_searches = int(num_searches_entry.get())
+        search_delay = float(search_delay_var.get())
+        type_delay_min = float(type_delay_min_var.get())
+        type_delay_max = float(type_delay_max_var.get())
+        tab_close_delay = float(tab_close_delay_var.get())
 
-# User confirmation
-confirmation = input("This script will perform automated searches on Bing. Do you want to proceed? (yes/no): ")
-if confirmation.lower() != 'yes':
-    print("Operation cancelled by the user.")
-    exit()
+        confirmation = messagebox.askyesno("Confirmation", "This script will perform automated searches on Bing. Do you want to proceed?")
+        if confirmation:
+            perform_searches(num_searches, search_delay, type_delay_min, type_delay_max, tab_close_delay)
+    except ValueError:
+        messagebox.showerror("Invalid input", "Please enter valid values.")
 
-perform_searches(num_searches, search_delay, type_delay_min, type_delay_max, tab_close_delay)
+def set_preset(preset):
+    if preset == 'slow':
+        search_delay_var.set(2)
+        type_delay_min_var.set(0.1)
+        type_delay_max_var.set(0.2)
+        tab_close_delay_var.set(2)
+    elif preset == 'medium':
+        search_delay_var.set(1)
+        type_delay_min_var.set(0.05)
+        type_delay_max_var.set(0.1)
+        tab_close_delay_var.set(1)
+    elif preset == 'fast':
+        search_delay_var.set(0.5)
+        type_delay_min_var.set(0.01)
+        type_delay_max_var.set(0.05)
+        tab_close_delay_var.set(0.5)
+
+# GUI setup
+root = tk.Tk()
+root.title("Bing Search Automation")
+root.configure(bg="#f0f0f0")
+
+tk.Label(root, text="Enter the number of searches:", bg="#f0f0f0").grid(row=0, column=0, padx=10, pady=10)
+num_searches_entry = tk.Entry(root)
+num_searches_entry.grid(row=0, column=1, padx=10, pady=10)
+
+search_delay_var = tk.DoubleVar()
+type_delay_min_var = tk.DoubleVar()
+type_delay_max_var = tk.DoubleVar()
+tab_close_delay_var = tk.DoubleVar()
+
+button_bg_color = "#4682b4"
+button_fg_color = "white"
+
+tk.Button(root, text="Slow Preset", command=lambda: set_preset('slow'), bg=button_bg_color, fg=button_fg_color).grid(row=1, column=0, pady=5, padx=10)
+tk.Button(root, text="Medium Preset", command=lambda: set_preset('medium'), bg=button_bg_color, fg=button_fg_color).grid(row=1, column=1, pady=5, padx=10)
+tk.Button(root, text="Fast Preset", command=lambda: set_preset('fast'), bg=button_bg_color, fg=button_fg_color).grid(row=2, column=0, pady=5, padx=10)
+tk.Button(root, text="Start", command=start_search, bg=button_bg_color, fg=button_fg_color).grid(row=2, column=1, pady=20, padx=10)
+
+root.mainloop()
