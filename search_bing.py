@@ -2,7 +2,7 @@
 Author: Filip Šulík
 Date: February 2025
 Description: This script performs automated searches on Bing using random words and strings.
-Version: 1.1.0
+Version: 1.1.1
 License: MIT
 Dependencies: 
     - pyautogui
@@ -130,6 +130,10 @@ def perform_searches(num_searches, search_delay, type_delay_min, type_delay_max,
 
 def start_search():
     try:
+        if not any([search_delay_var.get(), type_delay_min_var.get(), type_delay_max_var.get(), tab_close_delay_var.get()]):
+            messagebox.showerror("Preset not selected", "Please select a speed preset before starting the search.")
+            return
+
         num_searches = int(num_searches_entry.get())
         search_delay = float(search_delay_var.get())
         type_delay_min = float(type_delay_min_var.get())
@@ -148,16 +152,24 @@ def set_preset(preset):
         type_delay_min_var.set(0.1)
         type_delay_max_var.set(0.2)
         tab_close_delay_var.set(2)
+        update_button_colors('slow')
     elif preset == 'medium':
         search_delay_var.set(1)
         type_delay_min_var.set(0.05)
         type_delay_max_var.set(0.1)
         tab_close_delay_var.set(1)
+        update_button_colors('medium')
     elif preset == 'fast':
         search_delay_var.set(0.5)
         type_delay_min_var.set(0.01)
         type_delay_max_var.set(0.05)
         tab_close_delay_var.set(0.5)
+        update_button_colors('fast')
+
+def update_button_colors(active_preset):
+    slow_button.config(bg=button_bg_color if active_preset != 'slow' else active_button_color)
+    medium_button.config(bg=button_bg_color if active_preset != 'medium' else active_button_color)
+    fast_button.config(bg=button_bg_color if active_preset != 'fast' else active_button_color)
 
 # GUI setup
 root = tk.Tk()
@@ -174,11 +186,26 @@ type_delay_max_var = tk.DoubleVar()
 tab_close_delay_var = tk.DoubleVar()
 
 button_bg_color = "#4682b4"
-button_fg_color = "white"
+button_fg_color = "whitesmoke"
+active_button_color = "#27408b"  # color for active preset
 
-tk.Button(root, text="Slow Preset", command=lambda: set_preset('slow'), bg=button_bg_color, fg=button_fg_color).grid(row=1, column=0, pady=5, padx=10)
-tk.Button(root, text="Medium Preset", command=lambda: set_preset('medium'), bg=button_bg_color, fg=button_fg_color).grid(row=1, column=1, pady=5, padx=10)
-tk.Button(root, text="Fast Preset", command=lambda: set_preset('fast'), bg=button_bg_color, fg=button_fg_color).grid(row=2, column=0, pady=5, padx=10)
-tk.Button(root, text="Start", command=start_search, bg=button_bg_color, fg=button_fg_color).grid(row=2, column=1, pady=20, padx=10)
+preset_frame = tk.Frame(root, bg="#f0f0f0")
+preset_frame.grid(row=1, column=0, columnspan=2, pady=10)
 
-root.mainloop()
+slow_button = tk.Button(preset_frame, text="Slow Preset\n(fakt pomalé)", command=lambda: set_preset('slow'), bg=button_bg_color, fg=button_fg_color, padx=20, pady=10)
+slow_button.pack(side=tk.LEFT, padx=10)
+medium_button = tk.Button(preset_frame, text="Medium Preset\n(default)", command=lambda: set_preset('medium'), bg=button_bg_color, fg=button_fg_color, padx=20, pady=10)
+medium_button.pack(side=tk.LEFT, padx=10)
+fast_button = tk.Button(preset_frame, text="Fast Preset\n(neodporúčam)", command=lambda: set_preset('fast'), bg=button_bg_color, fg=button_fg_color, padx=20, pady=10)
+fast_button.pack(side=tk.LEFT, padx=10)
+
+tk.Button(root, text="Start", command=start_search, bg=button_bg_color, fg=button_fg_color, padx=20, pady=10).grid(row=2, column=0, columnspan=2, pady=20)
+
+if __name__ == "__main__":
+    try:
+        import ctypes
+        ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
+    except Exception as e:
+        logging.error(f"An error occurred while hiding the console window: {e}")
+
+    root.mainloop()
