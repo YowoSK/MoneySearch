@@ -19,6 +19,7 @@ import os
 import logging
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 
 try:
     import pyautogui
@@ -66,6 +67,11 @@ def get_search_speed():
         return 1, 0.05, 0.1, 1
 
 def perform_searches(num_searches, search_delay, type_delay_min, type_delay_max, tab_close_delay):
+    progress_bar['maximum'] = num_searches
+    progress_bar['value'] = 0
+
+    start_time = time.time()  # Record the start time
+
     try:
         if os.name == 'nt':  # Windows
             edge_path = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe %s'
@@ -86,8 +92,8 @@ def perform_searches(num_searches, search_delay, type_delay_min, type_delay_max,
     open_tabs = 0
 
     try:
-        for real_word in unique_real_words:
-            random_string = generate_random_string(10)
+        for i, real_word in enumerate(unique_real_words):
+            random_string = generate_random_string(random.randint(5, 15))
             search_query = real_word + " " + random_string
 
             try:
@@ -98,30 +104,42 @@ def perform_searches(num_searches, search_delay, type_delay_min, type_delay_max,
                 logging.error(f"An error occurred while opening a new tab: {e}")
                 continue
 
-            time.sleep(search_delay)
+            time.sleep(search_delay + random.uniform(-0.5, 0.5))  # Randomize delay slightly
 
             try:
                 for char in search_query:
                     pyautogui.typewrite(char)
-                    time.sleep(random.uniform(type_delay_min, type_delay_max))
+                    time.sleep(random.uniform(type_delay_min, type_delay_max))  # Simulate human typing speed
+                time.sleep(random.uniform(0.5, 1.5))  # Pause before pressing enter
                 pyautogui.press('enter')
                 logging.info(f"Typed and submitted search query: {search_query}")
             except Exception as e:
                 logging.error(f"An error occurred while typing the search query: {e}")
                 continue
 
-            time.sleep(tab_close_delay)
+            time.sleep(tab_close_delay + random.uniform(-0.5, 0.5))  # Randomize tab close delay
 
             if open_tabs > 1:
                 try:
                     pyautogui.hotkey('ctrl', '1')
-                    time.sleep(tab_close_delay)
+                    time.sleep(random.uniform(0.5, 1.0))  # Pause before closing tab
                     pyautogui.hotkey('ctrl', 'w')
                     open_tabs -= 1
                     logging.info("Closed a tab")
                 except Exception as e:
                     logging.error(f"An error occurred while closing a tab: {e}")
                     continue
+
+            # Update progress bar
+            progress_bar['value'] = i + 1
+
+            # Calculate and display estimated time remaining
+            elapsed_time = time.time() - start_time
+            avg_time_per_search = elapsed_time / (i + 1)
+            remaining_time = avg_time_per_search * (num_searches - (i + 1))
+            time_remaining_label.config(text=f"Estimated time remaining: {int(remaining_time)} seconds")
+
+            root.update_idletasks()
 
     except KeyboardInterrupt:
         logging.info("Script stopped by user.")
@@ -200,6 +218,14 @@ fast_button = tk.Button(preset_frame, text="Fast Preset\n(neodporúčam)", comma
 fast_button.pack(side=tk.LEFT, padx=10)
 
 tk.Button(root, text="Start", command=start_search, bg=button_bg_color, fg=button_fg_color, padx=20, pady=10).grid(row=2, column=0, columnspan=2, pady=20)
+
+# Add progress bar to GUI
+progress_bar = ttk.Progressbar(root, orient="horizontal", length=300, mode="determinate")
+progress_bar.grid(row=3, column=0, columnspan=2, pady=10)
+
+# Add label for time estimation
+time_remaining_label = tk.Label(root, text="Estimated time remaining: Calculating...", bg="#f0f0f0")
+time_remaining_label.grid(row=4, column=0, columnspan=2, pady=10)
 
 if __name__ == "__main__":
     try:
